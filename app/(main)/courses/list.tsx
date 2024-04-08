@@ -1,13 +1,30 @@
 import Card from "./card";
 
-const List = () => {
+// type Props = {
+//     courses: typeof courses.$inferSelect[];
+//     activeCourseId?: typeof UserProgress.$inferSelect.activeCoourseId;
+// };
+
+type Props = {
+    courses: any;
+    activeCourseId: string;
+};
+
+const List = ({ courses, activeCourseId }: Props) => {
+
 
     return (
-        <div>
-            <Card>Spanish</Card>
-            <Card>French</Card>
-            <Card>Croatian</Card>
-            <Card>Italian</Card>
+        <div className="pt-6 grid grid-cols-2 gap-4 lg:grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
+            {
+                courses.map((course) => (
+                    <Card
+                        key={course.id}
+                        imageSrc={course.imageSrc}
+                        title={course.title}
+                        active={course.id === activeCourseId}
+                        disabled={false}
+                    ></Card>
+                ))}
         </div>
     );
 }
