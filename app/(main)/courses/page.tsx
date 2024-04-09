@@ -1,35 +1,36 @@
+import { getCourses, getUserProgress } from "@/db/queries";
 import List from "./list";
 
-const CoursesPage = () => {
-    const courses = [{
-        imageSrc: "/jp.svg",
-        title: "Japanese",
-        active: true,
-        disabled: false,
-    }, {
-        imageSrc: "/jp.svg",
-        title: "Japanese",
-        active: true,
-        disabled: false,
-    }, {
-        imageSrc: "/jp.svg",
-        title: "Japanese",
-        active: true,
-        disabled: false,
-    }, {
-        imageSrc: "/jp.svg",
-        title: "Japanese",
-        active: true,
-        disabled: false,
-    }];
+const CoursesPage = async () => {
+    // const courses = [{
+    //     id: 123,
+    //     imageSrc: "/jp.svg",
+    //     title: "Japanese",
+    // }, {
+    //     id: 133,
+    //     imageSrc: "/jp.svg",
+    //     title: "Japanese",
+    // }, {
+    //     id: 156,
+    //     imageSrc: "/jp.svg",
+    //     title: "Japanese",
+    // }, {
+    //     id: 155,
+    //     imageSrc: "/jp.svg",
+    //     title: "Japanese",
+    // }];
 
+    const coursesData = getCourses();
+    const userProgressData = getUserProgress();
+
+    const [courses, userProgress] = await Promise.all([coursesData, userProgressData]);
 
     return (
         <div className="h-full max-w-[912px] px-3 mx-auto">
             <h1 className="text-2xl font-bold text-neutral-700">Language Courses</h1>
             <List
                 courses={courses}
-                activeCourseId="123"
+                activeCourseId={userProgress?.activeCourseId}
             ></List>
         </div>
     );
