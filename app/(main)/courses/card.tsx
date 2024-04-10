@@ -7,7 +7,7 @@ type Props = {
     title: string;
     active: boolean;
     disabled: boolean;
-    onClick: (courseId: number) => null;
+    onClick: (courseId: number) => void;
     id: number;
 };
 
