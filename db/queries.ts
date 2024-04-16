@@ -85,4 +85,46 @@ export const getUnits = cache(async () => {
 
 export const getCourseProgress = cache(async () => {
 
+    const { userId } = await auth();
+    const userProgress = await getUserProgress();
+
+    if (!userId || !userProgress?.activeCourseId) {
+        return null;
+    }
+
+    const unitsInActiveCourse = await db.query.units.findMany({
+        where: eq(units.courseId, userProgress.activeCourseId),
+        with: {
+            lessons: {
+                with: {
+                    unit: true,
+                    challenges: {
+                        with: {
+                            challengeProgress: {
+                                where: eq(challengeProgress.userId, userId),
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const firstUncompletedLesson = unitsInActiveCourse
+        .flatMap((unit) => unit.lessons)
+        .find((lesson) => {
+            return lesson.challenges.some((challenge) => {
+                return !challenge.challengeProgress
+                    || challenge.challengeProgress.length === 0
+                    || challenge.challengeProgress.some((progress) => {
+                        return progress.completed === false
+                    });
+            });
+        });
+
+
+    return {
+        activeLesson: firstUncompletedLesson,
+        activeLessonId: firstUncompletedLesson?.id,
+    };
 });

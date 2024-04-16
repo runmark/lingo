@@ -41,7 +41,7 @@ const LearnPage = async () => {
                             description={unit.description}
                             title={unit.title}
                             lessons={unit.lessons}
-                            activeLesson={ }
+                            activeLesson={courseProgress.activeLesson}
                         // activeLessonPercentage={ }
                         />
                     </div>
