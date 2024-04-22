@@ -2,6 +2,7 @@
 
 import { challengeOptions, challenges } from "@/db/schema";
 import Header from "./header";
+import Challenge from "./challenge";
 
 type Props = {
     initialLessonId: number;
@@ -39,6 +40,9 @@ const Quiz = ({
                         <h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700">
                             {title}
                         </h1>
+                        <div>
+                            <Challenge />
+                        </div>
                     </div>
                 </div>
             </div>
