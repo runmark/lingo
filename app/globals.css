@@ -8,6 +8,22 @@ body,
   @apply h-full;
 }
 
+/* 
+h1 {
+  margin-top: 0;
+  font-size: 22px;
+}
+
+convert 
+h1 in styles.css (above)
+to
+h1 in global.css with tailwindCSS (below)
+
+h1 {
+  @apply mt-0 text-2xl;
+} 
+*/
+
 @layer base {
   :root {
     --background: 0 0% 100%;

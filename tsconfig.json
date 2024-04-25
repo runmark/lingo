@@ -32,7 +32,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "app/react-learn/page.jsx"
+    "app/react-learn/product-table/page.jsx"
   ],
   "exclude": [
     "node_modules"
