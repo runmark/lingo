@@ -3,7 +3,10 @@
 import { challengeOptions, challenges } from "@/db/schema";
 import Header from "./header";
 import Challenge from "./challenge";
+import { useState } from "react";
+import ChallengeBubble from "./challenge-bubble";
 
+// TODO for test, should be removed
 const quiz: Props = {
     initialLessonId: 1,
     initialHearts: 5,
@@ -63,13 +66,23 @@ const Quiz = ({
     initialLessonChallenges,
 }: Props) => {
 
+    // TODO remove
     ({ initialLessonId, initialHearts, initialPercentage, initialLessonChallenges } = quiz);
 
     const hearts = initialHearts;
     const percentage = initialPercentage;
 
-    // const challenge = initialLessonChallenges[activeIndex];
-    const title = "hello";
+    const [challenges] = useState(initialLessonChallenges);
+    const [activeIndex, setActiveIndex] = useState(() => {
+        const uncompletedIndex = challenges.findIndex((challenge) => !challenge.completed);
+        return uncompletedIndex === -1 ? 0 : uncompletedIndex;
+    });
+
+    const challenge = challenges[activeIndex];
+    const title = challenge.type === "ASSIST"
+        ? "Select the correct meaning"
+        : challenge.question;
+
 
     return (
         <>
@@ -79,13 +92,23 @@ const Quiz = ({
                 hasActiveSubscription={true}
             />
             <div className="flex-1">
-                <div className="h-full flex items-center justify-center">
+                <div className="h-full flex  items-center justify-center">
                     <div className="lg:min-h-[350px] lg:w-[600px] w-full px-6 lg:px-0 flex flex-col gap-y-12">
                         <h1 className="text-lg lg:text-3xl text-center lg:text-start font-bold text-neutral-700">
                             {title}
                         </h1>
                         <div>
-                            <Challenge />
+                            {challenge.type === "ASSIST" && (
+                                <ChallengeBubble question={challenge.question} />
+                            )}
+                            <Challenge
+                                options={challenge.challengeOptions}
+                                status="none"
+                                selectedOption={undefined}
+                                disabled={false}
+                                type={challenge.type}
+                                onSelect={() => { }}
+                            />
                         </div>
                     </div>
                 </div>
