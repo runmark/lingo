@@ -5,6 +5,8 @@ import Header from "./header";
 import Challenge from "./challenge";
 import { useState } from "react";
 import ChallengeBubble from "./challenge-bubble";
+import Footer from "./footer";
+import { stat } from "fs";
 
 // TODO for test, should be removed
 const quiz: Props = {
@@ -72,6 +74,13 @@ const Quiz = ({
     const hearts = initialHearts;
     const percentage = initialPercentage;
 
+    const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
+    const [selectedOption, setSelectedOption] = useState<number>();
+    const onSelect = (id: number) => {
+        if (status !== "none") return;
+        setSelectedOption(id);
+    };
+
     const [challenges] = useState(initialLessonChallenges);
     const [activeIndex, setActiveIndex] = useState(() => {
         const uncompletedIndex = challenges.findIndex((challenge) => !challenge.completed);
@@ -79,6 +88,8 @@ const Quiz = ({
     });
 
     const challenge = challenges[activeIndex];
+    const options = challenge?.challengeOptions ?? [];
+
     const title = challenge.type === "ASSIST"
         ? "Select the correct meaning"
         : challenge.question;
@@ -103,16 +114,21 @@ const Quiz = ({
                             )}
                             <Challenge
                                 options={challenge.challengeOptions}
-                                status="none"
-                                selectedOption={undefined}
+                                status={status}
+                                selectedOption={selectedOption}
                                 disabled={false}
                                 type={challenge.type}
-                                onSelect={() => { }}
+                                onSelect={onSelect}
                             />
                         </div>
                     </div>
                 </div>
             </div>
+            <Footer
+                disabled={!selectedOption}
+                status={status}
+                onCheck={() => { }}
+            />
         </>
     );
 }
