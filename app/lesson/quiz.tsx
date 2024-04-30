@@ -1,12 +1,14 @@
 'use client';
 
 import { challengeOptions, challenges } from "@/db/schema";
-import Header from "./header";
-import Challenge from "./challenge";
 import { useState } from "react";
+import Challenge from "./challenge";
 import ChallengeBubble from "./challenge-bubble";
 import Footer from "./footer";
-import { stat } from "fs";
+import Header from "./header";
+import { log } from "console";
+import { toast } from "sonner";
+import { upsertChallengeProgress } from "@/actions/user-progress";
 
 // TODO for test, should be removed
 const quiz: Props = {
@@ -87,8 +89,44 @@ const Quiz = ({
         return uncompletedIndex === -1 ? 0 : uncompletedIndex;
     });
 
+    const onNext = () => {
+        setActiveIndex((current) => current + 1);
+    };
+
     const challenge = challenges[activeIndex];
     const options = challenge?.challengeOptions ?? [];
+
+    const onContinue = () => {
+        if (!selectedOption) return;
+
+        if (status === "correct") {
+            onNext();
+            setStatus("none");
+            setSelectedOption(undefined);
+            return;
+        }
+
+        if (status === "wrong") {
+            setStatus("none");
+            setSelectedOption(undefined);
+            return;
+        }
+
+        const correctOption = options.find((option) => option.correct);
+        if (!correctOption) return;
+
+        if (correctOption.id === selectedOption) {
+            upsertChallengeProgress()
+                .then((response) => {
+
+                })
+                .catch(() => toast.error("Something went wrong. Please try again."));
+            console.log("correct");
+        } else {
+            console.log("error");
+        }
+
+    };
 
     const title = challenge.type === "ASSIST"
         ? "Select the correct meaning"
@@ -113,7 +151,7 @@ const Quiz = ({
                                 <ChallengeBubble question={challenge.question} />
                             )}
                             <Challenge
-                                options={challenge.challengeOptions}
+                                options={options}
                                 status={status}
                                 selectedOption={selectedOption}
                                 disabled={false}
@@ -127,7 +165,7 @@ const Quiz = ({
             <Footer
                 disabled={!selectedOption}
                 status={status}
-                onCheck={() => { }}
+                onCheck={onContinue}
             />
         </>
     );

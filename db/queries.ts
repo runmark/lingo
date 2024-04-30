@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs";
 import { cache } from "react";
 
 import db from "@/db/drizzle";
-import { challengeProgress, challenges, courses, lessons, units, userProgress } from "@/db/schema";
+import { challengeProgress, courses, lessons, units, userProgress } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const getCourses = cache(async () => {
