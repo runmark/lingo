@@ -1,14 +1,17 @@
 'use client';
 
+import { upsertChallengeProgress } from "@/actions/challenge-progress";
+import { reduceHearts } from "@/actions/user-progress";
 import { challengeOptions, challenges } from "@/db/schema";
-import { useState } from "react";
+import { useHeartsModal } from "@/store/use-hearts-modal";
+import { usePracticeModal } from "@/store/use-practice-modal";
+import { useState, useTransition } from "react";
+import { useAudio, useMount } from "react-use";
+import { toast } from "sonner";
 import Challenge from "./challenge";
 import ChallengeBubble from "./challenge-bubble";
 import Footer from "./footer";
 import Header from "./header";
-import { log } from "console";
-import { toast } from "sonner";
-import { upsertChallengeProgress } from "@/actions/user-progress";
 
 // TODO for test, should be removed
 const quiz: Props = {
@@ -69,12 +72,28 @@ const Quiz = ({
     initialPercentage,
     initialLessonChallenges,
 }: Props) => {
-
     // TODO remove
-    ({ initialLessonId, initialHearts, initialPercentage, initialLessonChallenges } = quiz);
+    // ({ initialLessonId, initialHearts, initialPercentage, initialLessonChallenges } = quiz);
 
-    const hearts = initialHearts;
-    const percentage = initialPercentage;
+    const { open: openHeartsModal } = useHeartsModal();
+    const { open: openPracticeModal } = usePracticeModal();
+
+    useMount(() => {
+        if (initialPercentage === 100) {
+            openPracticeModal();
+        }
+    });
+
+    const [finishAudio] = useAudio({ src: "/finish.mp3", autoPlay: true });
+    const [correctAudio, _c, correctControls] = useAudio({ src: "/correct.wav" });
+    const [incorrectAudio, _i, incorrectControls] = useAudio({ src: "/incorrect.wav" });
+
+    const [pending, startTransition] = useTransition();
+
+    const [hearts, setHearts] = useState(initialHearts);
+    const [percentage, setPercentage] = useState(() => {
+        return initialPercentage === 100 ? 0 : initialPercentage;
+    });
 
     const [status, setStatus] = useState<"correct" | "wrong" | "none">("none");
     const [selectedOption, setSelectedOption] = useState<number>();
@@ -94,6 +113,9 @@ const Quiz = ({
     };
 
     const challenge = challenges[activeIndex];
+    // console.log(challenges);
+    // console.log(activeIndex);
+    // console.log(challenge);
     const options = challenge?.challengeOptions ?? [];
 
     const onContinue = () => {
@@ -116,17 +138,54 @@ const Quiz = ({
         if (!correctOption) return;
 
         if (correctOption.id === selectedOption) {
-            upsertChallengeProgress()
-                .then((response) => {
+            startTransition(() => {
+                upsertChallengeProgress(challenge.id)
+                    .then((response) => {
+                        if (response?.error === "hearts") {
+                            openHeartsModal();
+                            return;
+                        }
 
-                })
-                .catch(() => toast.error("Something went wrong. Please try again."));
-            console.log("correct");
+                        correctControls.play();
+                        setStatus("correct");
+                        setPercentage((prev) => prev + 100 / challenges.length);
+
+                        if (initialPercentage === 100) {
+                            setHearts((prev) => Math.min(prev + 1, 5));
+                        }
+                    })
+                    .catch(() => toast.error("Something went wrong. Please try again."));
+                console.log("correct");
+            });
         } else {
-            console.log("error");
-        }
+            startTransition(() => {
+                reduceHearts(challenge.id)
+                    .then((response) => {
+                        if (response?.error === "hearts") {
+                            openHeartsModal();
+                            return;
+                        }
 
+                        incorrectControls.play();
+                        setStatus("wrong");
+
+                        if (!response?.error) {
+                            setHearts((prev) => Math.max(prev - 1, 0));
+                        }
+                    })
+                    .catch(() => { toast.error("Something went wrong. Please try again.") });
+            });
+        }
     };
+
+    // TODO remove true
+    if (!challenge) {
+        return (
+            <>
+                {finishAudio}
+            </>
+        );
+    }
 
     const title = challenge.type === "ASSIST"
         ? "Select the correct meaning"
@@ -135,6 +194,8 @@ const Quiz = ({
 
     return (
         <>
+            {incorrectAudio}
+            {correctAudio}
             <Header
                 hearts={hearts}
                 percentage={percentage}
@@ -154,7 +215,7 @@ const Quiz = ({
                                 options={options}
                                 status={status}
                                 selectedOption={selectedOption}
-                                disabled={false}
+                                disabled={pending}
                                 type={challenge.type}
                                 onSelect={onSelect}
                             />
@@ -163,7 +224,7 @@ const Quiz = ({
                 </div>
             </div>
             <Footer
-                disabled={!selectedOption}
+                disabled={pending || !selectedOption}
                 status={status}
                 onCheck={onContinue}
             />

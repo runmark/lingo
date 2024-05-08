@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:studio": "npx drizzle-kit studio",
+    "db:studio": "npx drizzle-kit studio --port 5555",
     "db:push": "npx drizzle-kit push:pg",
     "db:seed": "tsx ./scripts/seed.ts"
   },
@@ -38,7 +38,7 @@
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.20.14",
+    "drizzle-kit": "^0.20.18",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "pg": "^8.11.4",
