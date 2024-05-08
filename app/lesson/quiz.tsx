@@ -6,12 +6,17 @@ import { challengeOptions, challenges } from "@/db/schema";
 import { useHeartsModal } from "@/store/use-hearts-modal";
 import { usePracticeModal } from "@/store/use-practice-modal";
 import { useState, useTransition } from "react";
-import { useAudio, useMount } from "react-use";
+import { useAudio, useMount, useWindowSize } from "react-use";
 import { toast } from "sonner";
 import Challenge from "./challenge";
 import ChallengeBubble from "./challenge-bubble";
 import Footer from "./footer";
 import Header from "./header";
+import Image from "next/image";
+import { Router } from "lucide-react";
+import { useRouter } from "next/navigation";
+import Confetti from "react-confetti";
+import ResultCard from "./result-card";
 
 // TODO for test, should be removed
 const quiz: Props = {
@@ -74,6 +79,11 @@ const Quiz = ({
 }: Props) => {
     // TODO remove
     // ({ initialLessonId, initialHearts, initialPercentage, initialLessonChallenges } = quiz);
+
+    const router = useRouter();
+    const [lessonId] = useState(initialLessonId);
+
+    const { width, height } = useWindowSize();
 
     const { open: openHeartsModal } = useHeartsModal();
     const { open: openPracticeModal } = usePracticeModal();
@@ -179,10 +189,51 @@ const Quiz = ({
     };
 
     // TODO remove true
-    if (!challenge) {
+    if (true || !challenge) {
         return (
             <>
+                <Confetti
+                    width={width}
+                    height={height}
+                    recycle={false}
+                    numberOfPieces={500}
+                    tweenDuration={10000}
+                />
                 {finishAudio}
+                <div className="flex flex-col gap-y-4 lg:gap-y-8 max-w-lg mx-auto text-center items-center justify-center h-full">
+                    <Image
+                        src="/finish.svg"
+                        width={50}
+                        height={50}
+                        className="block lg:hidden"
+                        alt="finish"
+                    />
+                    <Image
+                        src="/finish.svg"
+                        width={100}
+                        height={100}
+                        className="hidden lg:block"
+                        alt="finish"
+                    />
+                    <h1 className="text-xl lg:text-3xl font-bold text-neutral-700">
+                        Great job! <br /> You&apos;ve completed the lesson
+                    </h1>
+                    <div className="flex items-center gap-x-4 w-full">
+                        <ResultCard
+                            variant="hearts"
+                            value={hearts}
+                        />
+                        <ResultCard
+                            variant="points"
+                            value={challenges.length * 10}
+                        />
+                    </div>
+                </div>
+                <Footer
+                    lessonId={lessonId}
+                    status="completed"
+                    onCheck={() => router.push("/learn")}
+                />
             </>
         );
     }
