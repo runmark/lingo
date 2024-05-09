@@ -189,7 +189,7 @@ const Quiz = ({
     };
 
     // TODO remove true
-    if (true || !challenge) {
+    if (!challenge) {
         return (
             <>
                 <Confetti
