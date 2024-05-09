@@ -25,12 +25,12 @@ const LearnPage = async () => {
     return (
         <div className="flex flex-row-reverse gap-[48px] px-6">
             <StickyWrapper>
-                <UserProgress activeCourse={userProgress.activeCourse}
-                    points={userProgress.points} hearts={userProgress.hearts} hasActiveSubscription={true}
+                <UserProgress
+                    activeCourse={userProgress.activeCourse}
+                    points={userProgress.points}
+                    hearts={userProgress.hearts}
+                    hasActiveSubscription={true}
                 />
-                <p>
-                    stick info
-                </p>
             </StickyWrapper>
             <FeedWrapper>
                 <Header title={userProgress.activeCourse.title} />
