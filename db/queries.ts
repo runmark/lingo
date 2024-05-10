@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs";
 import { cache } from "react";
 
 import db from "@/db/drizzle";
-import { challengeProgress, courses, lessons, units, userProgress } from "@/db/schema";
+import { challengeProgress, courses, lessons, units, userProgress, userSubscription } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const getCourses = cache(async () => {
@@ -206,4 +206,23 @@ export const getLessonPercentage = cache(async () => {
     );
 
     return percentage;
+});
+
+const DAY_IN_NS = 86_400_000;
+export const getUserSubscription = cache(async () => {
+    const { userId } = await auth();
+    if (!userId) return null;
+
+    const data = await db.query.userSubscription.findFirst({
+        where: eq(userSubscription.userId, userId),
+    });
+    if (!data) return null;
+
+    const isActive = data.stripePriceId
+        && data.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_NS > Date.now();
+
+    return {
+        ...data,
+        isActive: !!isActive,
+    };
 });
