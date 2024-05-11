@@ -32,6 +32,7 @@ export const POST = async (req: Request) => {
             return new NextResponse("UserId required", { status: 400 });
         }
 
+
         await db.insert(userSubscription).values({
             userId: session.metadata.userId,
             stripeSubscriptionId: subscription.id,
