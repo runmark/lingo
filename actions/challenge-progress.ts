@@ -1,7 +1,7 @@
 "use server";
 
 import db from "@/db/drizzle";
-import { getUserProgress } from "@/db/queries";
+import { getUserProgress, getUserSubscription } from "@/db/queries";
 import { challengeProgress, challenges, userProgress } from "@/db/schema";
 import { auth } from "@clerk/nextjs";
 import { and, eq } from "drizzle-orm";
@@ -18,7 +18,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
         throw new Error("User progress not found");
     }
 
-    // const userSubscription = await getUserSubscription();
+    const userSubscription = await getUserSubscription();
 
     const challenge = await db.query.challenges.findFirst({
         where: eq(challenges.id, challengeId)
@@ -36,7 +36,7 @@ export const upsertChallengeProgress = async (challengeId: number) => {
     });
 
     if (currentUserProgress.hearts === 0
-        // && userSubscription?.isActive
+        && userSubscription?.isActive
         && !existingChallengeProgress
     ) {
         return { error: "hearts" };

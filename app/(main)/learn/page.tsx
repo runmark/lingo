@@ -2,7 +2,7 @@ import FeedWrapper from "@/components/feed-wrapper";
 import StickyWrapper from "@/components/sticky-wrappper";
 import Header from "./header";
 import UserProgress from "@/components/user-progress";
-import { getCourseProgress, getLessonPercentage, getUnits, getUserProgress } from "@/db/queries";
+import { getCourseProgress, getLessonPercentage, getUnits, getUserProgress, getUserSubscription } from "@/db/queries";
 import { redirect } from "next/navigation";
 import Unit from "./unit";
 
@@ -12,6 +12,7 @@ const LearnPage = async () => {
     const units = await getUnits();
     const courseProgress = await getCourseProgress();
     const activeLessonPercentage = await getLessonPercentage();
+    const userSubscription = await getUserSubscription();
 
     // if (!userProgress || !userProgress.activeCourse)
     if (!userProgress?.activeCourse) {
@@ -29,7 +30,7 @@ const LearnPage = async () => {
                     activeCourse={userProgress.activeCourse}
                     points={userProgress.points}
                     hearts={userProgress.hearts}
-                    hasActiveSubscription={true}
+                    hasActiveSubscription={!!userSubscription?.isActive}
                 />
             </StickyWrapper>
             <FeedWrapper>

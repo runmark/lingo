@@ -2,7 +2,7 @@
 
 import { upsertChallengeProgress } from "@/actions/challenge-progress";
 import { reduceHearts } from "@/actions/user-progress";
-import { challengeOptions, challenges } from "@/db/schema";
+import { challengeOptions, challenges, userSubscription } from "@/db/schema";
 import { useHeartsModal } from "@/store/use-hearts-modal";
 import { usePracticeModal } from "@/store/use-practice-modal";
 import { useState, useTransition } from "react";
@@ -69,6 +69,9 @@ type Props = {
         completed: boolean;
         challengeOptions: typeof challengeOptions.$inferSelect[];
     })[];
+    subscription: typeof userSubscription.$inferSelect & {
+        isActive: boolean
+    } | null;
 };
 
 const Quiz = ({
@@ -76,6 +79,7 @@ const Quiz = ({
     initialHearts,
     initialPercentage,
     initialLessonChallenges,
+    subscription,
 }: Props) => {
     // TODO remove
     // ({ initialLessonId, initialHearts, initialPercentage, initialLessonChallenges } = quiz);
@@ -250,7 +254,7 @@ const Quiz = ({
             <Header
                 hearts={hearts}
                 percentage={percentage}
-                hasActiveSubscription={true}
+                hasActiveSubscription={!!subscription?.isActive}
             />
             <div className="flex-1">
                 <div className="h-full flex  items-center justify-center">
